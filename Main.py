@@ -104,7 +104,7 @@ def network_pipeline(input_file, outdir, tag):
         # Append data to the lists
         MinWeight.append(weight)
         NumComs.append(num_communities)
-        print(f"Minimum Weight: {MinWeight}, Number Communities: {NumComs}")
+        print(f"Minimum Weight: {MinWeight[-1]}, Number Communities: {NumComs[-1]}")
     # Create a dataframe using the lists
     comsVweight = pd.DataFrame({'Minimum_Edge_Weight': MinWeight, 'Number_Communities': NumComs})
     # Save it to the output dir
