@@ -93,10 +93,8 @@ def network_pipeline(input_file, outdir, tag):
     print("Finding cumulative area under the curve")
     for weight in range(0,100,1):
         pattern = os.path.join(variations_outdir, f"*_{weight}.csv")
-        print(f"Looking for {pattern}")
         tables = glob.glob(pattern)
         table = tables[0]
-        print(f"Reading in {table}")
         df = pd.read_csv(table)
         # Make a graph using the edgetable
         g = ig.Graph.TupleList(df.itertuples(index=False), directed=False, weights=True)
@@ -106,11 +104,13 @@ def network_pipeline(input_file, outdir, tag):
         # Append data to the lists
         MinWeight.append(weight)
         NumComs.append(num_communities)
+        print(f"Minimum Weight: {MinWeight}, Number Communities: {NumComs}")
     # Create a dataframe using the lists
     comsVweight = pd.DataFrame({'Minimum_Edge_Weight': MinWeight, 'Number_Communities': NumComs})
     # Save it to the output dir
     outfile_path = OUTDIR / "MinWeightVNumComs.csv"
     comsVweight.to_csv(outfile_path, index=False)
+    print(comsVweight)
     # Create a scatter plot to show data
     plt.figure(figsize=(8,6))
     plt.scatter(comsVweight['Minimum_Edge_Weight'], comsVweight['Number_Communities'], color='blue', alpha=0.5)
@@ -128,12 +128,8 @@ def network_pipeline(input_file, outdir, tag):
     MinWeight = []
     CumArea = []
     # Loop through comsVweight and get cumulative area
-    for index, row in comsVweight.iterrows():
-        try:
-            x, y = row['Minimum_Edge_Weight'], row['Number_Communities']
-        except KeyError as e:
-            print(f"KeyError: {e}. Column names: {comsVweight.columns}")
-            continue
+    for row in comsVweight.iterrows():
+        x, y = row['Minimum_Edge_Weight'], row['Number_Communities']
         # If statement to account for no variable atm
         if prev_x is not None:
             prev_y = float(prev_y)
@@ -151,7 +147,7 @@ def network_pipeline(input_file, outdir, tag):
         CumArea.append(y)
     # Create a df to store this AUC data
     AUC = pd.DataFrame({'Minimum_Edge_Weight': MinWeight, 'Cumulative_AUC': CumArea})
-
+    print(AUC)
     ## Use the 'Kneedle' point to find the knee of the curve
     x = AUC['Minimum_Edge_Weight'].values
     y = AUC['Cumulative_AUC'].values
