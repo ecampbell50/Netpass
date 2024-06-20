@@ -128,7 +128,7 @@ def network_pipeline(input_file, outdir, tag):
     MinWeight = []
     CumArea = []
     # Loop through comsVweight and get cumulative area
-    for row in comsVweight.iterrows():
+    for index, row in comsVweight.iterrows():
         x, y = row['Minimum_Edge_Weight'], row['Number_Communities']
         # If statement to account for no variable atm
         if prev_x is not None:
