@@ -125,6 +125,7 @@ def network_pipeline(input_file, outdir, tag):
     cumulative_area = 0
     prev_x = None
     prev_y = None
+    AUC = pd.DataFrame(columns=['Iteration', 'CumulativeAUC'])
     # Loop through comsVweight and get cumulative area
     for index, row in comsVweight.iterrows():
         x, y = row['Minimum_Edge_Weight'], row['Number_Communities']
@@ -143,7 +144,7 @@ def network_pipeline(input_file, outdir, tag):
         AUC = AUC._append({'Minimum': x, 'CumulativeAUC': cumulative_area}, ignore_index=True)
         # Append to lists
     print(AUC)
-    
+
     ## Use the 'Kneedle' point to find the knee of the curve
     x = AUC['Minimum_Edge_Weight'].values
     y = AUC['Cumulative_AUC'].values
