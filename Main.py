@@ -72,8 +72,10 @@ def network_pipeline(input_file, outdir, tag):
     # Create a directory to hold these
     variations_outdir = OUTDIR / "Edgetable_Variations"
     variations_outdir.mkdir(parents=True, exist_ok=True)
+    print("Creating edgetabele variations")
     # Initiate loop for removing edge weights
     for weight in range(0,100,1):
+        print(f"Edgetable minimum weight: {weight}")
         # Keep only edges above the weight variation
         edgetable_variant = wide_df_unique[wide_df_unique['Value'] > (weight / 100)]
         # Set outfile name
