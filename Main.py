@@ -74,7 +74,7 @@ def network_pipeline(input_file, outdir, tag):
     variations_outdir.mkdir(parents=True, exist_ok=True)
     print("Creating edgetabele variations")
     # Initiate loop for removing edge weights
-    for weight in range(0,99,1):
+    for weight in range(0,100,1):
         print(f"Edgetable minimum weight: {weight}")
         # Keep only edges above the weight variation
         edgetable_variant = wide_df_unique[wide_df_unique['Value'] > (weight / 100)]
@@ -90,10 +90,13 @@ def network_pipeline(input_file, outdir, tag):
     # Initialise lists for making the df of community count
     MinWeight = []
     NumComs = []
-    for weight in range(0,99,1):
+    print("Finding cumulative area under the curve")
+    for weight in range(0,100,1):
         pattern = os.path.join(variations_outdir, f"*_{weight}.csv")
+        print(f"Looking for {pattern}")
         tables = glob.glob(pattern)
         table = tables[0]
+        print(f"Reading in {table}")
         df = pd.read_csv(table)
         # Make a graph using the edgetable
         g = ig.Graph.TupleList(df.itertuples(index=False), directed=False, weights=True)
