@@ -146,8 +146,8 @@ def network_pipeline(input_file, outdir, tag):
     print(AUC)
 
     ## Use the 'Kneedle' point to find the knee of the curve
-    x = AUC['Minimum_Edge_Weight'].values
-    y = AUC['Cumulative_AUC'].values
+    x = AUC['Minimum'].values
+    y = AUC['CumulativeAUC'].values
     kneedle = KneeLocator(x,y, S=1.0, curve="concave", direction="increasing")
     print(f"Knee point of curve (min. edge weight) is: {(round(kneedle.knee, 3))}")
     kneedle.plot_knee()
