@@ -158,7 +158,7 @@ def network_pipeline(input_file, outdir, tag):
     print(f"Elbow of AUC curve is: {elbow_idx}")
     rotor.plot_elbow()
     # Save the plot as a PNG file
-    plt.savefig("rotor_elbow_plot.png", format="png")
+    plt.savefig("KneePointForMinEdgeWeight.png", dpi=300, bbox_inches='tight', format="png")
     # Optionally, you can close the plot if you are not displaying it
     plt.close()
     
@@ -171,10 +171,6 @@ def network_pipeline(input_file, outdir, tag):
     #    plt.annotate(f'Knee Point\n({round(knee_x, 3)}, {round(knee_y, 3)})',
     #        xy=(knee_x, knee_y), xytext=(knee_x + 0.5, knee_y + 0.5),
     #        arrowprops=dict(facecolor='black', arrowstyle='->'))
-
-
-    plt.savefig('KneePointForMinEdgeWeight.png', dpi=300, bbox_inches='tight')
-
 
 def extract_pipeline(genomad, conservative):
     print("Running extract provirus pipeline with options:", genomad, conservative)
