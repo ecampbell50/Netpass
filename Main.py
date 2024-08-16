@@ -9,7 +9,8 @@ import glob
 from pathlib import Path
 import igraph as ig
 import matplotlib.pyplot as plt
-from kneed import DataGenerator, KneeLocator
+from kneebow.rotor import Rotor
+#from kneed import DataGenerator, KneeLocator
 
 # Initiate parsing
 def network_pipeline(input_file, outdir, tag):
@@ -125,7 +126,7 @@ def network_pipeline(input_file, outdir, tag):
     cumulative_area = 0
     prev_x = None
     prev_y = None
-    AUC = pd.DataFrame(columns=['Iteration', 'CumulativeAUC'])
+    AUC = pd.DataFrame(columns=['Minimum', 'CumulativeAUC'])
     # Loop through comsVweight and get cumulative area
     for index, row in comsVweight.iterrows():
         x, y = row['Minimum_Edge_Weight'], row['Number_Communities']
@@ -146,12 +147,25 @@ def network_pipeline(input_file, outdir, tag):
     print(AUC)
 
     ## Use the 'Kneedle' point to find the knee of the curve
-    x = AUC['Minimum_Edge_Weight'].values
-    y = AUC['Cumulative_AUC'].values
-    kneedle = KneeLocator(x,y, S=1.0, curve="concave", direction="increasing")
-    print(f"Knee point of curve (min. edge weight) is: {(round(kneedle.knee, 3))}")
-    kneedle.plot_knee()
+    x = AUC['Minimum'].values
+    x = [float(i) for i in x]
+    y = AUC['CumulativeAUC'].values
+    y = [float(i) for i in y]
 
+    rotor = Rotor()
+    rotor.fit_rotate(AUC)
+    elbow_idx = rotor.get_elbow_index()
+    print(f"Elbow of AUC curve is: {elbow_idx}")
+    rotor.plot_elbow()
+    # Save the plot as a PNG file
+    plt.savefig("rotor_elbow_plot.png", format="png")
+    # Optionally, you can close the plot if you are not displaying it
+    plt.close()
+    
+    # Broken kneedle code
+    #kneedle = KneeLocator(x,y, S=1.0, curve="concave", direction="increasing")
+    #print(f"Knee point of curve (min. edge weight) is: {(round(kneedle.knee, 3))}")
+    #kneedle.plot_knee()
     # Annotate the knee point
     #if knee_x is not None and knee_y is not None:
     #    plt.annotate(f'Knee Point\n({round(knee_x, 3)}, {round(knee_y, 3)})',
