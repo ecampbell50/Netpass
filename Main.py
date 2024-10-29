@@ -282,7 +282,7 @@ def main():
 
     args = parser.parse_args()
     if args.subcommand == "network":
-        network_pipeline(args.input, args.outdir, args.tag)
+        network_pipeline(args.input, args.outdir, args.tag, args.loops)
     elif args.subcommand == "extract":
         extract_pipeline(args.genomad, args.conservative)
     elif args.subcommand == "combine":
