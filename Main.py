@@ -13,8 +13,8 @@ from kneebow.rotor import Rotor
 #from kneed import DataGenerator, KneeLocator
 
 # Initiate parsing
-def network_pipeline(input_file, outdir, tag):
-    print("Running network pipeline with options:", input_file, outdir, tag)
+def network_pipeline(input_file, outdir, tag, loops):
+    print("Running network pipeline with options:", input_file, outdir, tag, loops)
 
     ## Handled arguments used
     # Sourmash input csv
@@ -46,6 +46,16 @@ def network_pipeline(input_file, outdir, tag):
     else:
         print("No tag specified! Please provided a tag to describe sequence origins. Exiting...")
         exit()
+    # Remove or keep self-loops
+    if loops:
+        keep_self_loops = loops
+        if keep_self_loops == "no":
+            print("Will remove self-loops, genomes may be excluded from network as a result...")
+        elif keep_self_loops == "yes":
+            print("Will keep self-loops, genomes will have a connection to themselves but will not be excluded from networks...")
+        else:
+            print("Self-loop retention not specified! Please use yes or no to specify. Exiting...")
+            exit()
 
     ### Convert matrix to edgetable
     ## Load in matrix
@@ -56,8 +66,10 @@ def network_pipeline(input_file, outdir, tag):
     wide_df.insert(0, 'Source', genome_names)
     # Convert to long format
     wide_df_melted = wide_df.melt(id_vars=['Source'], var_name='Target', value_name='Value')
-    # Remove self-loops
-    wide_df_melted_noloops = wide_df_melted[wide_df_melted['Source'] != wide_df_melted['Target']]
+    # Handle self-loops
+    if keep_self_loops ==  "no":
+        wide_df_melted_noloops = wide_df_melted[wide_df_melted['Source'] != wide_df_melted['Target']]
+        print("Self-loops removed...")
     ## Remove duplicate edges
     # Sort the df to get duplicate edges in different orientations beside each other
     wide_df_sorted = wide_df_melted_noloops.copy()
@@ -65,8 +77,12 @@ def network_pipeline(input_file, outdir, tag):
     # Drop duplicates
     wide_df_unique = wide_df_sorted.drop_duplicates(subset=['Source', 'Target'])
     # Save this file to the output directory
-    output_path = OUTDIR / "Edgetable_NoDupesOrLoops.csv"
-    wide_df_unique.to_csv(output_path, index=False)
+    if keep_self_loops == "no":
+        output_path = OUTDIR / "Edgetable_NoDupesOrLoops.csv"
+        wide_df_unique.to_csv(output_path, index=False)
+    elif keep_self_loops == "yes":
+        output_path = OUTDIR / "Edgetable_NoDupes.csv"
+        wide_df_unique.to_csv(output_path, index=False)
 
     ### Find optimal edgetable to use
     ## Create Edgetable variations
@@ -158,7 +174,7 @@ def network_pipeline(input_file, outdir, tag):
     print(f"Elbow of AUC curve is: {elbow_idx}")
     rotor.plot_elbow()
     # Save the plot as a PNG file
-    plt.savefig("KneePointForMinEdgeWeight.png", dpi=300, bbox_inches='tight', format="png")
+    plt.savefig(f"KneePointCurve_MinWeight_{elbow_idx}.png", dpi=300, bbox_inches='tight', format="png")
     # Optionally, you can close the plot if you are not displaying it
     plt.close()
     
