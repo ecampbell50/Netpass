@@ -265,7 +265,8 @@ def main():
     network_parser = subparsers.add_parser("network", help="Run network pipeline")
     network_parser.add_argument("-i", "--input", help="Sourmash compare output csv file")
     network_parser.add_argument("-o", "--outdir", help="Directory to output all results/files to")
-    network_parser.add_argument("-t", "--tag", help="Identifier tag for sequences being used. Required. Reccomended: BAC/PRO for bacteria/provirus")
+    network_parser.add_argument("-t", "--tag", help="Identifier tag for sequences being used. Required. Recommended: BAC/PRO for bacteria/provirus")
+    network_parser.add_argument("-l", "--loops", help="Use yes or no. Include or exclude self-loops in the network. Default is include.")
     
 
     extract_parser = subparsers.add_parser("extract", help="Run extract pipeline")
