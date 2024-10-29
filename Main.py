@@ -68,12 +68,15 @@ def network_pipeline(input_file, outdir, tag, loops):
     wide_df_melted = wide_df.melt(id_vars=['Source'], var_name='Target', value_name='Value')
     # Handle self-loops
     if keep_self_loops ==  "no":
-        wide_df_melted_noloops = wide_df_melted[wide_df_melted['Source'] != wide_df_melted['Target']]
+        wide_df_melted_loopsprocessed = wide_df_melted[wide_df_melted['Source'] != wide_df_melted['Target']]
         print("Self-loops removed...")
+    elif keep_self_loops == "yes":
+        wide_df_melted_loopsprocessed = wide_df_melted.copy()
+    
     ## Remove duplicate edges
     # Sort the df to get duplicate edges in different orientations beside each other
-    wide_df_sorted = wide_df_melted_noloops.copy()
-    wide_df_sorted[['Source', 'Target']] = pd.DataFrame(np.sort(wide_df_melted_noloops[['Source', 'Target']], axis=1), index=wide_df_melted_noloops.index)
+    wide_df_sorted = wide_df_melted_loopsprocessed.copy()
+    wide_df_sorted[['Source', 'Target']] = pd.DataFrame(np.sort(wide_df_melted_loopsprocessed[['Source', 'Target']], axis=1), index=wide_df_melted_loopsprocessed.index)
     # Drop duplicates
     wide_df_unique = wide_df_sorted.drop_duplicates(subset=['Source', 'Target'])
     # Save this file to the output directory
