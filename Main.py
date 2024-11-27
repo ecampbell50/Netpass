@@ -43,6 +43,7 @@ def network_pipeline(input_file, outdir, tag, loops):
     # Sequence tag
     if tag:
         TAG = tag
+        print(f'Tag is set as: {TAG}')
     else:
         print("No tag specified! Please provided a tag to describe sequence origins. Exiting...")
         exit()
@@ -138,7 +139,7 @@ def network_pipeline(input_file, outdir, tag, loops):
     plt.xlabel('Minimum Edge Weight')
     plt.ylabel('Number of Communities')
     plt.grid(True)
-    plt.savefig('minweightVnumcoms.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'minweightVnumcoms_{TAG}.png', dpi=300, bbox_inches='tight')
     
     ## Get the AUC for the comsVweight graph
     # Initialise variables
@@ -177,7 +178,7 @@ def network_pipeline(input_file, outdir, tag, loops):
     print(f"Elbow of AUC curve is: {elbow_idx}")
     rotor.plot_elbow()
     # Save the plot as a PNG file
-    plt.savefig(f"KneePointCurve_MinWeight_{elbow_idx}.png", dpi=300, bbox_inches='tight', format="png")
+    plt.savefig(f"KneePointCurve_MinWeight_{elbow_idx}_{TAG}.png", dpi=300, bbox_inches='tight', format="png")
     # Optionally, you can close the plot if you are not displaying it
     plt.close()
     
@@ -190,6 +191,47 @@ def network_pipeline(input_file, outdir, tag, loops):
     #    plt.annotate(f'Knee Point\n({round(knee_x, 3)}, {round(knee_y, 3)})',
     #        xy=(knee_x, knee_y), xytext=(knee_x + 0.5, knee_y + 0.5),
     #        arrowprops=dict(facecolor='black', arrowstyle='->'))
+
+    ## Get a key for genome -> community
+    print(f'Finding communities in Edgetable with min weight {elbow_idx}')
+    variations_outdir = OUTDIR / "Edgetable_Variations"
+    # Set outfile name
+    path = Path(INPUT_FILE)
+    basename_noExt = path.stem
+    outfile = f"{basename_noExt}_{elbow_idx}.csv"
+    outfile_path = variations_outdir / outfile
+    # Load in elbow table
+    elbow_df = pd.read_csv(outfile_path)
+    # Make an igraph to find communities
+    elbow_g = ig.Graph.TupleList(elbow_df.itertuples(index=False), directed=False, weights=True)
+    # Get the communities
+    communities = elbow_g.community_multilevel(weights=elbow_g.es["weight"], return_levels=False)
+    num_communities = len(communities)
+    print(f'Elbow table {elbow_idx} has {num_communities} communities.')
+    # Map genome IDs to node indices
+    node_to_genome = {idx: elbow_g.vs[idx]["name"] for idx in range(elbow_g.vcount())}
+    # Create a mapping of genome IDs to community numbers
+    genome_to_community = {}
+    for community_number, community_nodes in enumerate(communities):
+        for node in community_nodes:
+            genome_id = node_to_genome[node]
+            genome_to_community[genome_id] = community_number
+    # Create a csv file from the genome-to-community mapping
+    genome_community_df = pd.DataFrame(list(genome_to_community.items()), columns=["Genome_ID", "Community"])
+    output_mapping = variations_outdir / f"{basename_noExt}_{elbow_idx}_ComMapping_{TAG}.csv"
+    genome_community_df.to_csv(output_mapping, index=False)
+    
+
+    ## Remove inter-community edges from the elbow edgetable
+    # Merge elbow_df with genome_community_df for both columns
+    merged_df = elbow_df.merge(genome_community_df, left_on=elbow_df.columns[0], right_on="Genome_ID", how="left") \
+                        .merge(genome_community_df, left_on=elbow_df.columns[1], right_on="Genome_ID", how="left", suffixes=("_col1", "_col2"))
+    # Filter rows where the communities are the same for both columns
+    filtered_df = merged_df[merged_df["Community_col1"] == merged_df["Community_col2"]]
+    # Drop unnecessary columns from the filtered DataFrame
+    filtered_df = filtered_df[elbow_df.columns]  # Retain only the original elbow_df columns
+    # Save the filtered df as a csv to be the no-intercommunity-edges table
+    filtered_df.to_csv(f'{basename_noExt}_{elbow_idx}_NoInterComEdges_{TAG}.csv')
 
 def extract_pipeline(genomad, conservative):
     print("Running extract provirus pipeline with options:", genomad, conservative)
