@@ -181,6 +181,9 @@ def network_pipeline(input_file, outdir, tag, loops):
     plt.savefig(f"KneePointCurve_MinWeight_{elbow_idx}_{TAG}.png", dpi=300, bbox_inches='tight', format="png")
     # Optionally, you can close the plot if you are not displaying it
     plt.close()
+    # Save this cumulative graph to csv
+    AUC.to_csv(f'CumulativeNumCommunities_{elbow_idx}.csv', index=False)
+    print(f"AUC results have been saved to 'CumulativeNumCommunities_{elbow_idx}.csv'")
     
     # Broken kneedle code
     #kneedle = KneeLocator(x,y, S=1.0, curve="concave", direction="increasing")
