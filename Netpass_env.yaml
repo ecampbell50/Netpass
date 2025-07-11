@@ -1,14 +1,30 @@
+#name: Netpass
+#channels:
+#  - conda-forge
+#  - defaults
+#dependencies:
+#  - python=3.9
+#  - pandas
+#  - numpy
+#  - argparse
+#  - glob2
+#  - pathlib
+#  - igraph
+#  - matplotlib
+#  - kneed
+
 name: Netpass
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.9
-  - pandas
-  - numpy
-  - argparse
-  - glob2
-  - pathlib
-  - igraph
-  - matplotlib
+  - python=3.10
+  - numpy=1.24.*
+  - pandas>=1.5.0
+  - matplotlib>=3.6.0
+  - pip
   - kneed
+  - pip:
+    - python-igraph>=0.10.0
+    - kneebow>=0.2.0
+    - pathlib2; python_version<"3.4"
