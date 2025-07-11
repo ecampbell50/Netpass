@@ -4,7 +4,7 @@
 We identified 3,221 prophages within 2,119 Streptococcus suis genomic assemblies, and created a bipartite k-mer similarity network between prophages and hosts where prophage-to-bacteria connections represent the host a prophage was identified from. Condensing our network into community-representative nodes allows us to make assumptions about infection potential of individual prophages based on community membership. Over 57,000 phage-defence proteins were annotated amongst our genomes. Associations/disassociations were calculated between infection- and defence-profiles of the host. Linking these events to the phylogeny of S. suis allows us to infer co-evolution events.
  These findings emphasise the complexity of phage-host interactions and simply linking defence genes to categories of susceptible/resistant is not sufficient. The presence of a defence system may facilitate mechanisms other than host-evasion. The co-evolution of prophages with their hosts not only affect the fitness of the host, but may be an indicator to how it will interact with other phages, which will be crucial for developing PT.
 
-# How it works
+# How UpdatedNetpass.py works
 This script takes a Sourmash (https://github.com/sourmash-bio/sourmash) csv output matrix and converts it to an edgetable for use in cytoscape. 
 It then uses iGraph Louvain method to iteratively check for communities with this edgetable, removing edges below a cutoff, then checking again. 
 The number of communities at each iteration is counted, and the 'elbow' or 'knee' of the curve calculated using kneebow. 
